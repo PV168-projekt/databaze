@@ -2,10 +2,8 @@
   <head>
   </head>
   <body>
-    <h1><span class="mw-headline">Úloha 4 </span></h1>
-    <p><b>Název</b>: Kompletní implementace aplikační vrstvy + testy<br><b>Počet bodů</b>: 3<br><b>Způsob řešení</b>: Úlohu řeší oba členové týmu dohromady.</p>
-    
- <h3>Potreba udělat</h3>
+  
+<h3>Potreba udělat</h3>
 
 <h4>Implementace</h4>
 <ol>
