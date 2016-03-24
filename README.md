@@ -1,7 +1,4 @@
-<html>
-  <head>
-  </head>
-  <body>
+<body>
   
 <h3>Potreba udělat</h3>
 
@@ -33,4 +30,3 @@
       <li>Pokud potřebujete pracovat s aktuálním datem a časem, nezapomeňte zajistit, aby testy zůstaly deterministické.&nbsp;Jako zdroj aktuálního data a času&nbsp;použijte instanci třídy <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Clock.html"><code>Clock</code></a>, kterou do příslušné komponenty nainjektujete v konstruktoru.&nbsp;V testech pak použijte mock instanci třídy Clock, která bude vracet předem definovaný čas (viz např. commit&nbsp;<a href="https://github.com/petradamek/PV168/commit/647cabc577bb8d11eaff0c80b435b15b600bdce7">647cabc5</a> ve vzorovém příkladu).&nbsp;</li>
       <li>Pokud používáte ruční řízení transakcí, nezapomeňte vždy po získání instance&nbsp;<a class="external text" href="http://java.sun.com/javase/6/docs/api/java/sql/Connection.html" rel="nofollow" style="font-family: monospace; " title="http://java.sun.com/javase/6/docs/api/java/sql/Timestamp.html">java.sql.Connection</a>&nbsp;z&nbsp;<a class="external text" href="http://java.sun.com/javase/6/docs/api/javax/sql/DataSource.html" rel="nofollow" style="font-family: monospace; " title="http://java.sun.com/javase/6/docs/api/java/sql/Timestamp.html">javax.sql.DataSource</a>&nbsp;vypnout režim autocommit a před vrácením (tj. uzavřením) spojení režim autocommit opět zapnout.&nbsp;</li> </ul>
   </body>
-</html>
