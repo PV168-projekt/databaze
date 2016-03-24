@@ -5,22 +5,6 @@
   <body>
     <h1><span class="mw-headline">Úloha 4 </span></h1>
     <p><b>Název</b>: Kompletní implementace aplikační vrstvy + testy<br><b>Počet bodů</b>: 3<br><b>Způsob řešení</b>: Úlohu řeší oba členové týmu dohromady.</p>
-    
-    <h3>Potreba udělat</h3>
-
-<h4>Implementace</h4>
-<ol>
-<li>Agency: 0%</li>
-<li>Agent: 0%</li>
-<li>Mission: 0%</li>
-</ol>
-
-<h4>Testy</h4>
-<ol>
-<li>Agency: 0%</li>
-<li>Agent: 0%</li>
-<li>Mission: 0%</li>
-</ol>
     <h2><span class="mw-headline">Zadání </span></h2>
     <ol>
       <li>Kompletně implementujte celou aplikační vrstvu a vytvořte testy pro všechny metody.</li>
