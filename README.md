@@ -5,7 +5,22 @@
   <body>
     <h1><span class="mw-headline">Úloha 4 </span></h1>
     <p><b>Název</b>: Kompletní implementace aplikační vrstvy + testy<br><b>Počet bodů</b>: 3<br><b>Způsob řešení</b>: Úlohu řeší oba členové týmu dohromady.</p>
-    <h2><span class="mw-headline">Zadání </span></h2>
+  <h3>Potreba udělat</h3>
+  <h4>Implementace</h4>
+  <ol>
+    <li>Agency: 0%</li>
+    <li>Agent: 0%</li>
+    <li>Mission: 0%</li>
+  </ol>
+  
+  <h4>Testy</h4>
+  <ol>
+    <li>Agency: 0%</li>
+    <li>Agent: 0%</li>
+    <li>Mission: 0%</li>
+  </ol>
+  
+  <h2><span class="mw-headline">Zadání </span></h2>
     <ol>
       <li>Kompletně implementujte celou aplikační vrstvu a vytvořte testy pro všechny metody.</li>
       <li>Můžete si vybrat, zda použijete třídu <a href="https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html"><code>JdbcTemplate</code></a> z modulu <a href="https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/html/jdbc.html">spring-jdbc</a>, <a href="https://commons.apache.org/proper/commons-dbutils/apidocs/org/apache/commons/dbutils/QueryRunner.html"><code>QueryRunner</code></a> z <a href="https://commons.apache.org/proper/commons-dbutils/">commons-dbutils</a>, nebo zda si vystačíte s čistým JDBC.&nbsp;</li>
