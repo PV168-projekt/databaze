@@ -9,8 +9,8 @@
   <h4>Implementace</h4>
   <ol>
     <li>Agency: 0%</li>
-    <li>Agent: 0%</li>
-    <li>Mission: 0%</li>
+    <li>Agent: 90% - zkontrolovat a když tak upravit</li>
+    <li>Mission: 90% - zkontrolovat a když tak upravit</li>
   </ol>
   
   <h4>Testy</h4>
