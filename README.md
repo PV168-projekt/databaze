@@ -8,9 +8,9 @@
   <h3>Potreba udělat</h3>
   <h4>Implementace</h4>
   <ol>
-    <li>Agency: 90% - zkontrolovat a když tak upravit</li>
-    <li>Agent: 90% - zkontrolovat a když tak upravit</li>
-    <li>Mission: 90% - zkontrolovat a když tak upravit</li>
+    <li>Agency: 95% - zkontrolovat a když tak upravit</li>
+    <li>Agent: 95% - zkontrolovat a když tak upravit</li>
+    <li>Mission: 95% - zkontrolovat a když tak upravit</li>
   </ol>
   
   <h4>Testy</h4>
