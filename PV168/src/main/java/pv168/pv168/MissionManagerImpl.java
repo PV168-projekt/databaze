@@ -1,6 +1,8 @@
 package pv168.pv168;
     
+import java.sql.SQLException;
 import java.util.List;
+import javax.sql.DataSource;
 
 /**
  * Created by Pavel Morcinek on 27.2.2016.
@@ -10,14 +12,14 @@ import java.util.List;
  */
 public class MissionManagerImpl implements MissionManager {
 
-//    private static DataSource prepareDataSource() throws SQLException {
-//        EmbeddedDataSource ds = new EmbeddedDataSource();
-//        // we will use in memory database
-//        ds.setDatabaseName("memory:gravemgr-test");
-//        // database is created automatically if it does not exist yet
-//        ds.setCreateDatabase("create");
-//        return ds;
-//    }
+    private static DataSource prepareDataSource() throws SQLException {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        // we will use in memory database
+        ds.setDatabaseName("memory:gravemgr-test");
+        // database is created automatically if it does not exist yet
+        ds.setCreateDatabase("create");
+        return ds;
+    }
 
     @Override
     public void createMission(Mission mission) {
