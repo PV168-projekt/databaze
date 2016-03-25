@@ -13,10 +13,16 @@ import java.util.List;
  */
 public class AgentManagerImpl implements AgentManager {
 
-    private final DataSource dataSource;
+    private DataSource dataSource;
 
-    public AgentManagerImpl(DataSource dataSource) {
+    public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }    
+
+    private void checkDataSource() {
+        if (dataSource == null) {
+            throw new IllegalStateException("DataSource is not set");
+        }
     }
 
     /**
@@ -26,6 +32,7 @@ public class AgentManagerImpl implements AgentManager {
      */
     @Override
     public void createAgent(Agent agent) throws ServiceFailureException {
+        checkDataSource();
         validate(agent);
 
         try (Connection connection = dataSource.getConnection();
@@ -52,6 +59,7 @@ public class AgentManagerImpl implements AgentManager {
      */
     @Override
     public void updateAgent(Agent agent) throws ServiceFailureException {
+        checkDataSource();
         validate(agent);
 
         if (agent.getId() == null) {
@@ -85,6 +93,8 @@ public class AgentManagerImpl implements AgentManager {
      */
     @Override
     public void deleteAgent(Agent agent) throws ServiceFailureException {
+        checkDataSource();
+        
         if (agent == null) {
             throw new IllegalArgumentException("Agent is null");
         }
@@ -118,25 +128,14 @@ public class AgentManagerImpl implements AgentManager {
      */
     @Override
     public Agent findAgentById(Long id) throws ServiceFailureException {
+        checkDataSource();
+        
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement("SELECT * FROM agent WHERE id = ?")) {
+                PreparedStatement st = connection.prepareStatement("SELECT id, name, salary FROM agent WHERE id = ?")) {
 
             st.setLong(1, id);
-            ResultSet rs = st.executeQuery();
 
-            if (rs.next()) {
-                Agent agent = resultSetToAgent(rs);
-
-                if (rs.next()) {
-                    throw new ServiceFailureException("Internal error: More entities with the same id found "
-                            + "(source id: " + id + ", found " + agent + " and "
-                            + resultSetToAgent(rs));
-                }
-
-                return agent;
-            } else {
-                return null;
-            }
+            return executeQueryForSingleAgent(st);
         } catch (SQLException e) {
             throw new ServiceFailureException("Error when retrieving agent with id " + id, e);
         }
@@ -147,15 +146,12 @@ public class AgentManagerImpl implements AgentManager {
      */
     @Override
     public List<Agent> findAllAgents() throws ServiceFailureException {
+        checkDataSource();
+        
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement("SELECT * FROM agent")) {
-            ResultSet rs = st.executeQuery();
-
-            List<Agent> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(resultSetToAgent(rs));
-            }
-            return result;
+                PreparedStatement st = connection.prepareStatement("SELECT id, name, salary FROM agent")) {
+          
+            return executeQueryForMultipleAgents(st);
         } catch (SQLException e) {
             throw new ServiceFailureException("Error when retrieving all agents");
         }
@@ -179,32 +175,53 @@ public class AgentManagerImpl implements AgentManager {
     private long getKey(ResultSet keyRS, Agent agent) throws ServiceFailureException, SQLException {
         if (keyRS.next()) {
             if (keyRS.getMetaData().getColumnCount() != 1) {
-                throw new ServiceFailureException("Internal Error: Generated key"
+                throw new ServiceFailureException("Internal Error: Generated key "
                         + "retrieving failed when trying to insert agent " + agent
                         + " - wrong key fields count: " + keyRS.getMetaData().getColumnCount());
             }
             Long result = keyRS.getLong(1);
             if (keyRS.next()) {
-                throw new ServiceFailureException("Internal Error: Generated key"
+                throw new ServiceFailureException("Internal Error: Generated key "
                         + "retrieving failed when trying to insert agent " + agent
                         + " - more keys found");
             }
             return result;
         } else {
-            throw new ServiceFailureException("Internal Error: Generated key"
+            throw new ServiceFailureException("Internal Error: Generated key "
                     + "retrieving failed when trying to insert agent " + agent
                     + " - no key found");
         }
     }
 
-    private Agent resultSetToAgent(ResultSet rs) throws SQLException {
+    private static Agent resultSetToAgent(ResultSet rs) throws SQLException {
         Agent agent = new Agent(rs.getLong("id"),
                 rs.getString("name"),
                 rs.getInt("salary"));
         return agent;
     }
+    
+    static Agent executeQueryForSingleAgent(PreparedStatement st) throws SQLException, ServiceFailureException{
+        ResultSet rs = st.executeQuery();
+         if (rs.next()) {
+                Agent result = resultSetToAgent(rs);
 
-    AgentManagerImpl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                if (rs.next()) {
+                    throw new ServiceFailureException("Internal error: More entities with the same id found ");
+                }
+
+                return result;
+            } else {
+                return null;
+            }
+    }
+    
+    static List<Agent> executeQueryForMultipleAgents(PreparedStatement st) throws SQLException {
+        ResultSet rs = st.executeQuery();
+
+            List<Agent> result = new ArrayList<>();
+            while (rs.next()) {
+                result.add(resultSetToAgent(rs));
+            }
+            return result;
     }
 }
