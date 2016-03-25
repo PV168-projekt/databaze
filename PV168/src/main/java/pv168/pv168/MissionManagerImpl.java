@@ -1,48 +1,234 @@
 package pv168.pv168;
-    
+
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
- * Created by Pavel Morcinek on 27.2.2016.
+ * Created by Pavel Morcinek and Lukas Ptosek
+ * 
+ * MELO BY BYT HOTOVE KDYZ TAK JESTE NEJAKE UPRAVY
  */
-/**
- * Manages mission's CRUD operations
- */
+
 public class MissionManagerImpl implements MissionManager {
 
-    private static DataSource prepareDataSource() throws SQLException {
-        EmbeddedDataSource ds = new EmbeddedDataSource();
-        // we will use in memory database
-        ds.setDatabaseName("memory:gravemgr-test");
-        // database is created automatically if it does not exist yet
-        ds.setCreateDatabase("create");
-        return ds;
+    private DataSource dataSource;
+
+    private static final Logger logger = Logger.getLogger(
+            MissionManagerImpl.class.getName());
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    private void checkDataSource() {
+        if (dataSource == null) {
+            throw new IllegalStateException("DataSource is not set");
+        }
+    }
+
+    private void validate(Mission mission) {
+        if (mission == null) {
+            throw new IllegalArgumentException("mission is null");
+        }
+        if (mission.getName() == null) {
+            throw new ValidationException("name is null");
+        }
+        if (mission.getLocation() == null) {
+            throw new ValidationException("location is null");
+        }
     }
 
     @Override
     public void createMission(Mission mission) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        checkDataSource();
+        validate(mission);
+
+        if (mission.getId() != null) {
+            throw new IllegalEntityException("Mission id is already set");
+        }
+        Connection conn = null;
+        PreparedStatement st = null;
+
+        try {
+            conn = dataSource.getConnection();
+
+            conn.setAutoCommit(false);
+            st = conn.prepareStatement(
+                    "INSERT INTO MISION (name,location) VALUES (?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            st.setString(1, mission.getName());
+            st.setString(2, mission.getLocation());
+
+            int count = st.executeUpdate();
+            DBUtils.checkUpdatesCount(count, mission, true);
+
+            Long id = DBUtils.getId(st.getGeneratedKeys());
+            mission.setId(id);
+            conn.commit();
+        } catch (SQLException ex) {
+            String msg = "Error when inserting mission into db";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.doRollbackQuietly(conn);
+            DBUtils.closeQuietly(conn, st);
+        }
     }
 
     @Override
     public void updateMission(Mission mission) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        checkDataSource();
+        validate(mission);
+
+        if (mission.getId() == null) {
+            throw new IllegalEntityException("Mission id is null");
+        }
+
+        Connection conn = null;
+        PreparedStatement st = null;
+
+        try {
+            conn = dataSource.getConnection();
+            // Temporary turn autocommit mode off. It is turned back on in 
+            // method DBUtils.closeQuietly(...) 
+            conn.setAutoCommit(false);
+            st = conn.prepareStatement(
+                    "UPDATE MISSION SET name = ?, location = ? WHERE id = ?");
+            st.setString(1, mission.getName());
+            st.setString(2, mission.getLocation());
+
+            int count = st.executeUpdate();
+            DBUtils.checkUpdatesCount(count, mission, false);
+            conn.commit();
+        } catch (SQLException ex) {
+            String msg = "Error when updating mission in the db";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.doRollbackQuietly(conn);
+            DBUtils.closeQuietly(conn, st);
+        }
     }
 
     @Override
     public void deleteMission(Mission mission) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        checkDataSource();
+        if (mission == null) {
+            throw new IllegalArgumentException("Mission is null");
+        }
+        if (mission.getId() == null) {
+            throw new IllegalEntityException("Mission id is null");
+        }
+        Connection conn = null;
+        PreparedStatement st = null;
+
+        try {
+            conn = dataSource.getConnection();
+            // Temporary turn autocommit mode off. It is turned back on in 
+            // method DBUtils.closeQuietly(...) 
+            conn.setAutoCommit(false);
+            st = conn.prepareStatement(
+                    "DELETE FROM Mission WHERE id = ?");
+            st.setLong(1, mission.getId());
+
+            int count = st.executeUpdate();
+            DBUtils.checkUpdatesCount(count, mission, false);
+            conn.commit();
+        } catch (SQLException ex) {
+            String msg = "Error when deleting Mission from the db";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.doRollbackQuietly(conn);
+            DBUtils.closeQuietly(conn, st);
+        }
     }
 
     @Override
     public Mission findMissionById(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        checkDataSource();
+
+        if (id == null) {
+            throw new IllegalArgumentException("id is null");
+        }
+
+        Connection conn = null;
+        PreparedStatement st = null;
+
+        try {
+            conn = dataSource.getConnection();
+            st = conn.prepareStatement(
+                    "SELECT id, name, location FROM Mission WHERE id = ?");
+            st.setLong(1, id);
+            return executeQueryForSingleMission(st);
+
+        } catch (SQLException ex) {
+            String msg = "Error when getting mission with id = " + id + " from DB";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.closeQuietly(conn, st);
+        }
+    }
+
+    static Mission executeQueryForSingleMission(PreparedStatement st) throws SQLException, ServiceFailureException {
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            Mission result = rowToMission(rs);
+            if (rs.next()) {
+                throw new ServiceFailureException(
+                        "Internal integrity error: more mission with the same id found!");
+            }
+            return result;
+        } else {
+            return null;
+        }
     }
 
     @Override
     public List<Mission> findAllMissions() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        checkDataSource();
+        Connection conn = null;
+
+        PreparedStatement st = null;
+        try {
+            conn = dataSource.getConnection();
+            st = conn.prepareStatement(
+                    "SELECT id, name, location FROM Mission");
+            return executeQueryForMultipleMission(st);
+
+        } catch (SQLException ex) {
+            String msg = "Error when getting all mission from DB";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.closeQuietly(conn, st);
+        }
+    }
+
+    static List<Mission> executeQueryForMultipleMission(PreparedStatement st) throws SQLException {
+        ResultSet rs = st.executeQuery();
+        List<Mission> result = new ArrayList<>();
+        while (rs.next()) {
+            result.add(rowToMission(rs));
+        }
+        return result;
+    }
+
+    static private Mission rowToMission(ResultSet rs) throws SQLException {
+        Mission result = new Mission();
+        result.setId(rs.getLong("id"));
+        result.setName(rs.getString("name"));
+        result.setLocation((rs.getString("location")));
+        return result;
     }
 }

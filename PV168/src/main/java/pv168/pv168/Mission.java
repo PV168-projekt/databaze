@@ -24,6 +24,9 @@ public class Mission {
         this.name = name;
         this.location = location;
     }
+    
+    Mission() { //empty contructor        
+    }
 
     /**
      * Copy constructor
