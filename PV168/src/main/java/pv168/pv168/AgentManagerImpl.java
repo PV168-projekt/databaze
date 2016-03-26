@@ -4,6 +4,8 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Pavel Morcinek und Lukas Ptosek on 27.2.2016.
@@ -14,10 +16,13 @@ import java.util.List;
 public class AgentManagerImpl implements AgentManager {
 
     private DataSource dataSource;
+    
+    private static final Logger logger = Logger.getLogger(
+            AgencyManagerImpl.class.getName());
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-    }    
+    }
 
     private void checkDataSource() {
         if (dataSource == null) {
@@ -68,7 +73,7 @@ public class AgentManagerImpl implements AgentManager {
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement st = connection.prepareStatement(
-                        "UPDATE agent SET name = ?, salary = ? = ? WHERE id = ?")) {
+                        "UPDATE Agent SET name = ?, salary = ? WHERE id = ?")) {
 
             st.setString(1, agent.getName());
             st.setInt(2, agent.getSalary());
@@ -86,37 +91,37 @@ public class AgentManagerImpl implements AgentManager {
         }
     }
 
-    /**
-     * deletes existing agent
-     *
-     * @param agent
-     */
     @Override
     public void deleteAgent(Agent agent) throws ServiceFailureException {
         checkDataSource();
-        
         if (agent == null) {
             throw new IllegalArgumentException("Agent is null");
         }
-        if (agent.getId() == null) {
-            throw new IllegalArgumentException("Agent id is null");
-        }
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement(
-                        "DELETE FROM agent WHERE id = ?")) {
 
+        if (agent.getId() == null) {
+            throw new IllegalEntityException("Agent id is null");
+        }
+
+        Connection conn = null;
+        PreparedStatement st = null;
+
+        try {
+            conn = dataSource.getConnection();
+            conn.setAutoCommit(false);
+            st = conn.prepareStatement(
+                    "DELETE FROM Agent WHERE id = ?");
             st.setLong(1, agent.getId());
 
             int count = st.executeUpdate();
-            if (count == 0) {
-                throw new EntityNotFoundException("Agent " + agent + " was not found in database!");
-            } else if (count != 1) {
-                throw new ServiceFailureException("Invalid deleted rows count detected (one row should be updated): " + count);
-            }
+            DBUtils.checkUpdatesCount(count, agent, false);
+            conn.commit();
         } catch (SQLException ex) {
-            throw new ServiceFailureException(
-                    "Error when updating grave " + agent, ex);
+            String msg = "Error when deleting Mission from the db";
+            logger.log(Level.SEVERE, msg, ex);
+            throw new ServiceFailureException(msg, ex);
+        } finally {
+            DBUtils.doRollbackQuietly(conn);
+            DBUtils.closeQuietly(conn, st);
         }
     }
 
@@ -129,7 +134,7 @@ public class AgentManagerImpl implements AgentManager {
     @Override
     public Agent findAgentById(Long id) throws ServiceFailureException {
         checkDataSource();
-        
+
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement st = connection.prepareStatement("SELECT id, name, salary FROM agent WHERE id = ?")) {
 
@@ -147,10 +152,10 @@ public class AgentManagerImpl implements AgentManager {
     @Override
     public List<Agent> findAllAgents() throws ServiceFailureException {
         checkDataSource();
-        
+
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement st = connection.prepareStatement("SELECT id, name, salary FROM agent")) {
-          
+
             return executeQueryForMultipleAgents(st);
         } catch (SQLException e) {
             throw new ServiceFailureException("Error when retrieving all agents");
@@ -199,29 +204,29 @@ public class AgentManagerImpl implements AgentManager {
                 rs.getInt("salary"));
         return agent;
     }
-    
-    static Agent executeQueryForSingleAgent(PreparedStatement st) throws SQLException, ServiceFailureException{
+
+    static Agent executeQueryForSingleAgent(PreparedStatement st) throws SQLException, ServiceFailureException {
         ResultSet rs = st.executeQuery();
-         if (rs.next()) {
-                Agent result = resultSetToAgent(rs);
+        if (rs.next()) {
+            Agent result = resultSetToAgent(rs);
 
-                if (rs.next()) {
-                    throw new ServiceFailureException("Internal error: More entities with the same id found ");
-                }
-
-                return result;
-            } else {
-                return null;
+            if (rs.next()) {
+                throw new ServiceFailureException("Internal error: More entities with the same id found ");
             }
+
+            return result;
+        } else {
+            return null;
+        }
     }
-    
+
     static List<Agent> executeQueryForMultipleAgents(PreparedStatement st) throws SQLException {
         ResultSet rs = st.executeQuery();
 
-            List<Agent> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(resultSetToAgent(rs));
-            }
-            return result;
+        List<Agent> result = new ArrayList<>();
+        while (rs.next()) {
+            result.add(resultSetToAgent(rs));
+        }
+        return result;
     }
 }
