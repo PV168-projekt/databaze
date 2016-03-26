@@ -37,24 +37,25 @@ public class MissionManagerImpl implements MissionManager {
 
     private void validate(Mission mission) {
         if (mission == null) {
-            throw new IllegalArgumentException("mission is null");
+            throw new IllegalArgumentException();
         }
         if (mission.getName() == null) {
-            throw new ValidationException("name is null");
+            throw new ValidationException();
         }
         if (mission.getLocation() == null) {
-            throw new ValidationException("location is null");
+            throw new ValidationException();
         }
     }
 
     @Override
-    public void createMission(Mission mission) {
+    public void createMission(Mission mission) throws ServiceFailureException {
         checkDataSource();
         validate(mission);
 
-        if (mission.getId() != null) {
+        if (mission.getId() != 0) {
             throw new IllegalEntityException("Mission id is already set");
         }
+        
         Connection conn = null;
         PreparedStatement st = null;
 
@@ -63,7 +64,7 @@ public class MissionManagerImpl implements MissionManager {
 
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
-                    "INSERT INTO MISION (name,location) VALUES (?,?)",
+                    "INSERT INTO Mission (name,location) VALUES (?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             st.setString(1, mission.getName());
             st.setString(2, mission.getLocation());
@@ -85,7 +86,7 @@ public class MissionManagerImpl implements MissionManager {
     }
 
     @Override
-    public void updateMission(Mission mission) {
+    public void updateMission(Mission mission) throws ServiceFailureException {
         checkDataSource();
         validate(mission);
 
@@ -120,7 +121,7 @@ public class MissionManagerImpl implements MissionManager {
     }
 
     @Override
-    public void deleteMission(Mission mission) {
+    public void deleteMission(Mission mission) throws ServiceFailureException {
         checkDataSource();
         if (mission == null) {
             throw new IllegalArgumentException("Mission is null");
@@ -154,7 +155,7 @@ public class MissionManagerImpl implements MissionManager {
     }
 
     @Override
-    public Mission findMissionById(Long id) {
+    public Mission findMissionById(Long id) throws ServiceFailureException {
         checkDataSource();
 
         if (id == null) {
@@ -195,7 +196,7 @@ public class MissionManagerImpl implements MissionManager {
     }
 
     @Override
-    public List<Mission> findAllMissions() {
+    public List<Mission> findAllMissions() throws ServiceFailureException {
         checkDataSource();
         Connection conn = null;
 
