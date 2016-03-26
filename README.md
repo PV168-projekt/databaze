@@ -16,8 +16,8 @@
   <h4>Testy</h4>
   <ol>
     <li>Agency: 0%</li>
-    <li>Agent: 0%</li>
-    <li>Mission: 0%</li>
+    <li>Agent: 95% - zkontrolovat a když tak upravit</li>
+    <li>Mission: 95% - zkontrolovat a když tak upravit</li>
   </ol>
   
   <h2><span class="mw-headline">Zadání </span></h2>
