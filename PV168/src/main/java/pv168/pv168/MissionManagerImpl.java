@@ -90,7 +90,7 @@ public class MissionManagerImpl implements MissionManager {
         checkDataSource();
         validate(mission);
 
-        if (mission.getId() == null) {
+        if (mission.getId() == 0) {
             throw new IllegalEntityException("Mission id is null");
         }
 
@@ -103,9 +103,10 @@ public class MissionManagerImpl implements MissionManager {
             // method DBUtils.closeQuietly(...) 
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
-                    "UPDATE MISSION SET name = ?, location = ? WHERE id = ?");
+                    "UPDATE Mission SET name = ?, location = ? WHERE id = ?");
             st.setString(1, mission.getName());
             st.setString(2, mission.getLocation());
+            st.setLong(3, mission.getId());
 
             int count = st.executeUpdate();
             DBUtils.checkUpdatesCount(count, mission, false);
@@ -134,8 +135,6 @@ public class MissionManagerImpl implements MissionManager {
 
         try {
             conn = dataSource.getConnection();
-            // Temporary turn autocommit mode off. It is turned back on in 
-            // method DBUtils.closeQuietly(...) 
             conn.setAutoCommit(false);
             st = conn.prepareStatement(
                     "DELETE FROM Mission WHERE id = ?");
