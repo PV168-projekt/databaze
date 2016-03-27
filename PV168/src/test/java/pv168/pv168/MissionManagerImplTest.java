@@ -8,26 +8,12 @@ import org.junit.rules.ExpectedException;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-//------------------------------------------------------------------------------
-// IMPORTANT NOTE:
-// This test contains lots of comments to help you understand well all
-// implementation details. You are not expected to use such kind of comments
-// in your tests.
-//------------------------------------------------------------------------------
-/**
- * Example test class for {@link BodyManagerImpl}.
- *
- * @author petr.adamek@bilysklep.cz
- */
 public class MissionManagerImplTest {
 
     private MissionManagerImpl manager;
     private DataSource ds;
 
-    // ExpectedException is one possible mechanisms for testing if expected
-    // exception is thrown. See createGraveWithExistingId() for usage example.
     @Rule
-    // attribute annotated with @Rule annotation must be public :-(
     public ExpectedException expectedException = ExpectedException.none();
 
     //--------------------------------------------------------------------------
@@ -35,9 +21,7 @@ public class MissionManagerImplTest {
     //--------------------------------------------------------------------------
     private static DataSource prepareDataSource() throws SQLException {
         EmbeddedDataSource ds = new EmbeddedDataSource();
-        // we will use in memory database
         ds.setDatabaseName("memory:missiondb-test");
-        // database is created automatically if it does not exist yet
         ds.setCreateDatabase("create");
         return ds;
     }
@@ -68,9 +52,9 @@ public class MissionManagerImplTest {
         mission.setLocation("Taiwan");
         return mission;
     }
-    
+
     @Test
-    public void createMision() {
+    public void createMission() {
         Mission mission = sampleTestMission1();
         manager.createMission(mission);
 
@@ -98,19 +82,16 @@ public class MissionManagerImplTest {
                 .containsOnly(m1, m2);
     }
 
-    // Test exception with expected parameter of @Test annotation
-    // it does not allow to specify exact place where the exception
-    // is expected, therefor it is suitable only for simple single line tests
     @Test(expected = IllegalArgumentException.class)
     public void createNullMission() {
         manager.createMission(null);
     }
-
-    // Test exception with ExpectedException @Rule
+    
     @Test
     public void createMissionWithExistingId() {
         Mission mission = sampleTestMission1();
         mission.setId(1L);
+        
         expectedException.expect(IllegalEntityException.class);
         manager.createMission(mission);
     }
@@ -119,7 +100,7 @@ public class MissionManagerImplTest {
     public void createMissionWithNullName() {
         Mission mission = sampleTestMission1();
         mission.setName(null);
-        
+
         expectedException.expect(ValidationException.class);
         manager.createMission(mission);
 
@@ -129,13 +110,13 @@ public class MissionManagerImplTest {
     public void createMissionWithNullLocation() {
         Mission mission = sampleTestMission1();
         mission.setLocation(null);
-        
+
         expectedException.expect(ValidationException.class);
         manager.createMission(mission);
     }
 
     //--------------------------------------------------------------------------
-    // Tests for GraveManager.updateGrave(Grave) operation
+    // Tests for update operation
     //--------------------------------------------------------------------------
     @FunctionalInterface
     private static interface Operation<T> {
@@ -166,7 +147,7 @@ public class MissionManagerImplTest {
         testUpdateMission((mission) -> mission.setLocation("Rusko"));
     }
 
-    @Test (expected = ValidationException.class)
+    @Test(expected = ValidationException.class)
     public void updateMissionLocationToNull() {
         testUpdateMission((mission) -> mission.setLocation(null));
     }
@@ -176,7 +157,7 @@ public class MissionManagerImplTest {
         testUpdateMission((mission) -> mission.setName("Mirek"));
     }
 
-    @Test (expected = ValidationException.class)
+    @Test(expected = ValidationException.class)
     public void updateMissionNameToNull() {
         testUpdateMission((mission) -> mission.setLocation(null));
     }
@@ -195,7 +176,7 @@ public class MissionManagerImplTest {
     }
 
     //--------------------------------------------------------------------------
-    // Tests for GraveManager.deleteGrave(Grave) operation
+    // Tests for delete operation
     //--------------------------------------------------------------------------
     @Test
     public void deleteMission() {
@@ -229,8 +210,7 @@ public class MissionManagerImplTest {
     }
 
     //--------------------------------------------------------------------------
-    // Tests if GraveManager methods throws ServiceFailureException in case of
-    // DB operation failure
+    // Tests about SQL exception
     //--------------------------------------------------------------------------
     @Test
     public void createMissionWithSqlExceptionThrown() throws SQLException {
@@ -243,9 +223,7 @@ public class MissionManagerImplTest {
         Mission mission = sampleTestMission1();
 
         assertThatThrownBy(() -> manager.createMission(mission))
-                // Check that thrown exception is ServiceFailureException
                 .isInstanceOf(ServiceFailureException.class)
-                // Check if cause is properly set
                 .hasCause(sqlException);
     }
 

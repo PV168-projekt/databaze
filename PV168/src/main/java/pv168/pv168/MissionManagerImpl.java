@@ -127,7 +127,7 @@ public class MissionManagerImpl implements MissionManager {
         if (mission == null) {
             throw new IllegalArgumentException("Mission is null");
         }
-        if (mission.getId() == null) {
+        if (mission.getId() == 0) {
             throw new IllegalEntityException("Mission id is null");
         }
         Connection conn = null;
