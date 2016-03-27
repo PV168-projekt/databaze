@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class AgentManagerImpl implements AgentManager {
 
     private DataSource dataSource;
-    
+
     private static final Logger logger = Logger.getLogger(
             AgencyManagerImpl.class.getName());
 
@@ -30,11 +30,6 @@ public class AgentManagerImpl implements AgentManager {
         }
     }
 
-    /**
-     * creates new agent
-     *
-     * @param agent
-     */
     @Override
     public void createAgent(Agent agent) throws ServiceFailureException {
         checkDataSource();
@@ -57,17 +52,12 @@ public class AgentManagerImpl implements AgentManager {
         }
     }
 
-    /**
-     * updates existing agent's data
-     *
-     * @param agent
-     */
     @Override
     public void updateAgent(Agent agent) throws ServiceFailureException {
         checkDataSource();
         validate(agent);
 
-        if (agent.getId() == null) {
+        if (agent.getId() == 0) {
             throw new IllegalArgumentException("Agent ID is null");
         }
         try (
@@ -98,7 +88,7 @@ public class AgentManagerImpl implements AgentManager {
             throw new IllegalArgumentException("Agent is null");
         }
 
-        if (agent.getId() == null) {
+        if (agent.getId() == 0) {
             throw new IllegalEntityException("Agent id is null");
         }
 
@@ -116,7 +106,7 @@ public class AgentManagerImpl implements AgentManager {
             DBUtils.checkUpdatesCount(count, agent, false);
             conn.commit();
         } catch (SQLException ex) {
-            String msg = "Error when deleting Mission from the db";
+            String msg = "Error when deleting agent from the db";
             logger.log(Level.SEVERE, msg, ex);
             throw new ServiceFailureException(msg, ex);
         } finally {
@@ -125,12 +115,6 @@ public class AgentManagerImpl implements AgentManager {
         }
     }
 
-    /**
-     * finds existing agent by his id
-     *
-     * @param id
-     * @return Agent if he exists, otherwise null
-     */
     @Override
     public Agent findAgentById(Long id) throws ServiceFailureException {
         checkDataSource();
@@ -146,9 +130,6 @@ public class AgentManagerImpl implements AgentManager {
         }
     }
 
-    /**
-     * @return all existing Agents
-     */
     @Override
     public List<Agent> findAllAgents() throws ServiceFailureException {
         checkDataSource();
@@ -162,12 +143,6 @@ public class AgentManagerImpl implements AgentManager {
         }
     }
 
-    /**
-     * checks if agent isn't null or his salary is not negative
-     *
-     * @param agent
-     * @throws IllegalArgumentException
-     */
     private void validate(Agent agent) throws IllegalArgumentException {
         if (agent == null) {
             throw new IllegalArgumentException("Agent is null");
@@ -213,8 +188,8 @@ public class AgentManagerImpl implements AgentManager {
             if (rs.next()) {
                 throw new ServiceFailureException("Internal error: More entities with the same id found ");
             }
-
             return result;
+
         } else {
             return null;
         }

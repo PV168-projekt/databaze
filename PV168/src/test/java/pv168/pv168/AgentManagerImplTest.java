@@ -23,7 +23,7 @@ public class AgentManagerImplTest {
     private static DataSource prepareDataSource() throws SQLException {
         EmbeddedDataSource dataSource = new EmbeddedDataSource();
         // we will use in memory database
-        dataSource.setDatabaseName("memory:agentmgr-test");
+        dataSource.setDatabaseName("memory:agentdb-test");
         // database is created automatically if it does not exist yet
         dataSource.setCreateDatabase("create");
         return dataSource;

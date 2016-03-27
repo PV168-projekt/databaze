@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Sun Mar 27 00:20:47 CET 2016:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0153-b53a-e013-00000e4db660 
-on database directory memory:D:\Netbeans\databaze\PV168\agentmgr-test with class loader sun.misc.Launcher$AppClassLoader@75b84c92 
+Sun Mar 27 14:32:26 CEST 2016:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0153-b80f-a535-00000e4d77d8 
+on database directory memory:D:\Netbeans\databaze\PV168\agencydb-test with class loader sun.misc.Launcher$AppClassLoader@75b84c92 
 Loaded from file:/C:/Users/Mrkew/.m2/repository/org/apache/derby/derby/10.12.1.1/derby-10.12.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_60-b27
