@@ -9,8 +9,8 @@
   <h4>Implementace</h4>
   <ol>
     <li>Agency: 0%</li>
-    <li>Agent: 95% - pokud ostatni pojede HOTOVO</li>
-    <li>Mission: 95% - pokud ostatni pojede HOTOVO</li>
+    <li>Agent: 99% - pokud ostatni pojede HOTOVO</li>
+    <li>Mission: 99% - pokud ostatni pojede HOTOVO</li>
   </ol>
   
   <h4>Testy</h4>
