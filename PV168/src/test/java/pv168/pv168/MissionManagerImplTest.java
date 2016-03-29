@@ -21,7 +21,7 @@ public class MissionManagerImplTest {
     //--------------------------------------------------------------------------
     private static DataSource prepareDataSource() throws SQLException {
         EmbeddedDataSource ds = new EmbeddedDataSource();
-        ds.setDatabaseName("memory:missiondb-test");
+        ds.setDatabaseName("memory:database-test");
         ds.setCreateDatabase("create");
         return ds;
     }
