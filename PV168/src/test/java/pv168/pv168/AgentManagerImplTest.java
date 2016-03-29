@@ -21,25 +21,23 @@ public class AgentManagerImplTest {
     public ExpectedException expectedException = ExpectedException.none();
     
     private static DataSource prepareDataSource() throws SQLException {
-        EmbeddedDataSource dataSource = new EmbeddedDataSource();
-        // we will use in memory database
-        dataSource.setDatabaseName("memory:agentdb-test");
-        // database is created automatically if it does not exist yet
-        dataSource.setCreateDatabase("create");
-        return dataSource;
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        ds.setDatabaseName("memory:database-test");
+        ds.setCreateDatabase("create");
+        return ds;
     }
     
     @Before
-    public void setUp() throws SQLException{
+    public void setUp() throws SQLException {
         dataSource = prepareDataSource();
-        DBUtils.executeSqlScript(dataSource, AgentManager.class.getResource("createTables.sql"));
+        DBUtils.executeSqlScript(dataSource, MissionManager.class.getResource("createTables.sql"));
         manager = new AgentManagerImpl();
         manager.setDataSource(dataSource);
     }
-    
+
     @After
     public void tearDown() throws SQLException {
-        DBUtils.executeSqlScript(dataSource, AgentManager.class.getResource("dropTables.sql"));
+        DBUtils.executeSqlScript(dataSource, MissionManager.class.getResource("dropTables.sql"));
     }
 
     private AgentBuilder sampleAgent1Builder() {
